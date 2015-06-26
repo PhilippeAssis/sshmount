@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import os
 import getpass
+from vendor.tools import query
+import subprocess
 
 clientUser = getpass.getuser()
-
 
 dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -11,8 +12,21 @@ os.system("sudo apt-get -y install sshfs")
 os.system("sudo apt-get -y install sshpass")
 
 os.system("sudo chmod +x %s/sshmount" % dir)
+
+if os.path.isfile('/usr/local/bin/sshmount'):
+    os.system("sudo rm /usr/local/bin/sshmount")
+
 os.system("sudo ln -s %s/sshmount /usr/local/bin/sshmount" % dir)
 
 os.system("sudo modprobe fuse")
 os.system("sudo chown root:fuse /dev/fuse")
 os.system("sudo chmod +x /dev/fuse")
+
+if os.path.isfile(os.path.expanduser("~/.ssh/id_rsa.pub")) == False:
+    if query('Your public key has not been found, it is necessary to save your passwords for connections to the servers, you want to create your public key?'):
+        os.system("ssh-keygen -t rsa")
+print("------------------------------------")
+print("SSH Mount successfully installed!")
+print("------------------------------------")
+if query("Want to see the list of commands?"):
+    os.system("sshmount -h")

@@ -2,29 +2,10 @@
 import os, sys
 from optparse import OptionParser
 import getpass
+from vendor.tools import query
 
-def query(question, default="yes"):
-    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
 
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == '':
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
-
-parser = OptionParser()
+parser = OptionParser(usage="\nTo connected\n\tsshmount <user>@<server> <path> [options]\nTo exit:\n\tsshmount exit\nor:\n\tsshmount stop")
 
 parser.add_option(  "--clientPath",
                     dest="clientPath",
@@ -69,6 +50,12 @@ parser.add_option(  '-t','--terminal',
                     action="store_true"
                     )
 
+parser.add_option(  '--save',
+                    dest="save",
+                    help="Save password server",
+                    default=False,
+                    action="store_true"
+                    )
 
 (options, args) = parser.parse_args()
 
@@ -91,6 +78,12 @@ if options.remoteUser == False:
 
 if os.path.isdir(options.clientPath) == False:
     os.system("mkdir %s" % options.clientPath)
+
+if query("To save this connection?"):
+    if '@' in options.remoteIp:
+        os.system("ssh-copy-id %s" % options.remoteIp)
+    else:
+        os.system("ssh-copy-id %s@%s" % (options.remoteUser,options.remoteIp))
 
 if options.password == False:
     if '@' in options.remoteIp:
