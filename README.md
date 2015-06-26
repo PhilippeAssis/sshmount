@@ -3,9 +3,9 @@ Mounts a directory with remote directories and files from an SSH connection ulti
 
 ##Requirements
 
-**Python 3**
-**Apt-get**
-**Debian directory architecture**
+- Python 3
+- Apt-get
+- Debian directory architecture
 
 ##Install
 
