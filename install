@@ -25,6 +25,7 @@ os.system("sudo chmod +x /dev/fuse")
 if os.path.isfile(os.path.expanduser("~/.ssh/id_rsa.pub")) == False:
     if query('Your public key has not been found, it is necessary to save your passwords for connections to the servers, you want to create your public key?'):
         os.system("ssh-keygen -t rsa")
+        os.system("ssh-add")
 print("------------------------------------")
 print("SSH Mount successfully installed!")
 print("------------------------------------")

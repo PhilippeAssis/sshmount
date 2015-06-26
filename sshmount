@@ -87,9 +87,11 @@ if os.path.isdir(options.clientPath) == False:
 
 if options.save == True and query("To save this connection?"):
     if '@' in options.remoteIp:
-        os.system("ssh-copy-id %s" % options.remoteIp)
+        # os.system('cat ~/.ssh/id_rsa.pub | ssh %s "mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys"' % options.remoteIp)
+        os.system("sudo ssh-copy-id %s" % options.remoteIp)
     else:
-        os.system("ssh-copy-id %s@%s" % (options.remoteUser,options.remoteIp))
+        # os.system('cat ~/.ssh/id_rsa.pub | ssh %s@%s "mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys"' % (options.remoteUser,options.remoteIp))
+        os.system("sudo ssh-copy-id %s@%s" % (options.remoteUser,options.remoteIp))
 
 if options.password == False:
     if '@' in options.remoteIp:
