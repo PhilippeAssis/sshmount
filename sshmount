@@ -5,7 +5,7 @@ import getpass
 from vendor.tools import query
 
 
-parser = OptionParser(usage="\nTo connected\n\tsshmount <user>@<server> <path> [options]\nTo exit:\n\tsshmount exit\nor:\n\tsshmount stop")
+parser = OptionParser(usage="\nTo connected\n\tsshmount <user>@<server> <path> [options]\nTo exit:\n\tsshmount exit <path>\nor:\n\tsshmount stop <path>")
 
 parser.add_option(  "--clientPath",
                     dest="clientPath",
@@ -59,7 +59,10 @@ parser.add_option(  '--save',
 
 (options, args) = parser.parse_args()
 
-if options.exit == True or (len(args) == 1 and args[0] in ('stop','exit')):
+if options.exit == True or (len(args) >= 1 and args[0] in ('stop','exit')):
+    if len(args) == 2:
+        options.clientPath = args[1]
+
     os.system("sudo fusermount -u %s" % options.clientPath)
     print("Closed transmission '%s'." % options.clientPath)
     exit()
@@ -68,6 +71,8 @@ if len(args) >= 1:
     options.remoteIp = args[0]
     if len(args) > 1:
         options.remotePath = args[1]
+        if len(args) > 2:
+            options.clientPath = args[2]
 
 options.clientPath = os.path.expanduser(options.clientPath)
 
@@ -79,7 +84,7 @@ if options.remoteUser == False:
 if os.path.isdir(options.clientPath) == False:
     os.system("mkdir %s" % options.clientPath)
 
-if query("To save this connection?"):
+if options.save == True and query("To save this connection?"):
     if '@' in options.remoteIp:
         os.system("ssh-copy-id %s" % options.remoteIp)
     else:
