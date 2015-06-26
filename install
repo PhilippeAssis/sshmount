@@ -10,6 +10,7 @@ dir = os.path.dirname(os.path.abspath(__file__))
 os.system("sudo apt-get -y install sshfs")
 os.system("sudo apt-get -y install sshpass")
 
+os.system("sudo chmod +x %s/sshmount")
 os.system("sudo ln -s %s/sshmount /usr/local/bin/sshmount" % dir)
 
 os.system("sudo modprobe fuse")
