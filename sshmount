@@ -1,0 +1,119 @@
+#!/usr/bin/python3
+import os, sys
+from optparse import OptionParser
+import getpass
+
+def query(question, default="yes"):
+    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
+
+parser = OptionParser()
+
+parser.add_option(  "--clientPath",
+                    dest="clientPath",
+                    help="Local mount directory",
+                    default='~/sshmount'
+                    )
+
+parser.add_option(  "-r", "--remoteIp",
+                    dest="remoteIp",
+                    help="IP or remote server url"
+                    )
+
+parser.add_option(  "-l", "--remoteUser",
+                    dest="remoteUser",
+                    help="Remote Server User",
+                    default=False
+                    )
+
+parser.add_option(  "-P", "--remotePath",
+                    dest="remotePath",
+                    help="Remote directory to be transmitted",
+                    default='/'
+                    )
+
+parser.add_option(  "-p", "--pass", "--password",
+                    dest="password",
+                    help="Password to access the remote server",
+                    default=False
+                    )
+
+parser.add_option(  "--exit", "--stop",
+                    dest="exit",
+                    help="Unmount and terminate transmission",
+                    default=False,
+                    action="store_true"
+                    )
+
+parser.add_option(  '-t','--terminal',
+                    dest="terminal",
+                    help="Start ssh connection terminalDismount and terminate transmission",
+                    default=False,
+                    action="store_true"
+                    )
+
+
+(options, args) = parser.parse_args()
+
+if options.exit == True or (len(args) == 1 and args[0] in ('stop','exit')):
+    os.system("sudo fusermount -u %s" % options.clientPath)
+    print("Closed transmission '%s'." % options.clientPath)
+    exit()
+
+if len(args) >= 1:
+    options.remoteIp = args[0]
+    if len(args) > 1:
+        options.remotePath = args[1]
+
+options.clientPath = os.path.expanduser(options.clientPath)
+
+options.clientUser = getpass.getuser()
+
+if options.remoteUser == False:
+    options.remoteUser = options.clientUser
+
+if os.path.isdir(options.clientPath) == False:
+    os.system("mkdir %s" % options.clientPath)
+
+if options.password == False:
+    if '@' in options.remoteIp:
+        os.system("sshfs %s:%s %s" % (options.remoteIp,options.remotePath,options.clientPath))
+    else:
+        os.system("sshfs %s@%s:%s %s" % (options.remoteUser,options.remoteIp,options.remotePath,options.clientPath))
+else:
+    if '@' in options.remoteIp:
+        os.system("echo %s|sshfs %s:%s %s -o password_stdin" % (options.password,options.remoteIp,options.remotePath,options.clientPath))
+    else:
+        os.system("echo %s|sshfs %s@%s:%s %s -o password_stdin" % (options.password,options.remoteUser,options.remoteIp,options.remotePath,options.clientPath))
+
+print('Connected in %s.' % options.clientPath)
+os.system("ls -l %s" % options.clientPath)
+
+if options.terminal == True or query('You want to start an ssh connection on the terminal?') == True:
+    if options.password == False:
+        if '@' in options.remoteIp:
+            os.system("ssh -t %s \"cd %s ; bash\"" % (options.remoteIp,options.remotePath))
+        else:
+            os.system("ssh -t %s@%s \"cd %s ; bash\"" % (options.remoteUser,options.remoteIp,options.remotePath))
+    else:
+        if '@' in options.remoteIp:
+            os.system("sshpass -p '%s' ssh -o StrictHostKeyChecking=no -t %s \"cd %s ; bash\"" % (options.password,options.remoteIp,options.remotePath))
+        else:
+            os.system("sshpass -p '%s' ssh -o StrictHostKeyChecking=no -t %s@%s \"cd %s ; bash\"" % (options.password,options.remoteUser,options.remoteIp,options.remotePath))

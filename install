@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+import os
+import getpass
+
+clientUser = getpass.getuser()
+
+
+dir = os.path.dirname(os.path.abspath(__file__))
+
+os.system("sudo apt-get -y install sshfs")
+os.system("sudo apt-get -y install sshpass")
+
+os.system("sudo ln -s %s/sshmount /usr/local/bin/sshmount" % dir)
+
+os.system("sudo modprobe fuse")
+os.system("sudo chown root:fuse /dev/fuse")
+os.system("sudo chmod +x /dev/fuse")
