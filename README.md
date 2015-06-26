@@ -1,6 +1,8 @@
 #SSH Mount
 Mounts a directory with remote directories and files from an SSH connection ultilizando sshfs, and opens a terminal in connection with standard ssh.
 
+**For Ubuntu or Debian derivatives (apt-get necessary)**
+
 ##Install
 
 ```shell
