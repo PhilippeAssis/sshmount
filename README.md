@@ -34,20 +34,14 @@ $ sshmount <user>@<server>
 ```
 
 ##Options
-  -h, --help            show this help message and exit
-  --clientPath=CLIENTPATH
-                        Local mount directory
-  -r REMOTEIP, --remoteIp=REMOTEIP
-                        IP or remote server url
-  -l REMOTEUSER, --remoteUser=REMOTEUSER
-                        Remote Server User
-  -P REMOTEPATH, --remotePath=REMOTEPATH
-                        Remote directory to be transmitted
-  -p PASSWORD, --pass=PASSWORD, --password=PASSWORD
-                        Password to access the remote server
-  --exit, --stop        Unmount and terminate transmission
-  -t, --terminal        Start ssh connection terminalDismount and terminate
-                        transmission
+    -h, --help                                            Show this help message and exit
+    --clientPath=CLIENTPATH                               Local mount directory
+    -r REMOTEIP, --remoteIp=REMOTEIP                      IP or remote server url
+    -l REMOTEUSER, --remoteUser=REMOTEUSER                Remote Server User
+    -P REMOTEPATH, --remotePath=REMOTEPATH                Remote directory to be transmitted
+    -p PASSWORD, --pass=PASSWORD, --password=PASSWORD     Password to access the remote server
+    --exit, --stop                                        Unmount and terminate transmission
+    -t, --terminal                                        Start ssh connection terminalDismount and terminate transmission
 
 
 ##Help
