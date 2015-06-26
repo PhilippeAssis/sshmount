@@ -4,10 +4,14 @@ Mounts a directory with remote directories and files from an SSH connection ulti
 ##install
 
 ```shell
-git clone https://github.com/PhilippeAssis/sshmount.git
-cd sshmount
-sudo chmod +x install
-./install
+$ git clone https://github.com/PhilippeAssis/sshmount.git
+$ cd sshmount
+$ sudo chmod +x install
+$ ./install
+```
+or
+```shell
+$ git clone https://github.com/PhilippeAssis/sshmount.git && cd sshmount && sudo chmod +x install && ./install
 ```
 
 ##Usage
@@ -15,22 +19,22 @@ sudo chmod +x install
 Starting an SSH connection to the transmission terminal
 
 ```shell
-sshmount <user>@<server> <serverDirectory> -p <password> -t
+$ sshmount <user>@<server> <serverDirectory> -p <password> -t
 ```
 
 "-t" starts an ssh connection on the terminal
 
 Starting a simple connection
 ```shell
-    sshmount <server> <user>
+$ sshmount <server> <user>
 ```
 or
 ```shell
-    sshmount <user>@<server>
+$ sshmount <user>@<server>
 ```
 
 ##Help
 Use -h for instructions
 ```shell
-    sshmount -h
+$ sshmount -h
 ```
