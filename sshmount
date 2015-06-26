@@ -64,6 +64,7 @@ if options.exit == True or (len(args) >= 1 and args[0] in ('stop','exit')):
         options.clientPath = args[1]
 
     os.system("sudo fusermount -u %s" % options.clientPath)
+    os.system("rm -r %s" % options.clientPath)
     print("Closed transmission '%s'." % options.clientPath)
     exit()
 
