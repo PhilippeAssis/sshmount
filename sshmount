@@ -4,66 +4,77 @@ from optparse import OptionParser
 import getpass
 from vendor.tools import query
 
+parser = OptionParser(
+    usage="\nTo connected\n\tsshmount <user>@<server> <path> <clientPath>[options]\nTo exit:\n\tsshmount exit <path>\nor:\n\tsshmount stop <path>")
 
-parser = OptionParser(usage="\nTo connected\n\tsshmount <user>@<server> <path> <clientPath>[options]\nTo exit:\n\tsshmount exit <path>\nor:\n\tsshmount stop <path>")
+parser.add_option("--clientPath",
+                  dest="clientPath",
+                  help="Local mount directory",
+                  default='~/sshmount'
+                  )
 
-parser.add_option(  "--clientPath",
-                    dest="clientPath",
-                    help="Local mount directory",
-                    default='~/sshmount'
-                    )
+parser.add_option("-r", "--remoteIp",
+                  dest="remoteIp",
+                  help="IP or remote server url"
+                  )
 
-parser.add_option(  "-r", "--remoteIp",
-                    dest="remoteIp",
-                    help="IP or remote server url"
-                    )
+parser.add_option("-f", "--force",
+                  dest="force",
+                  help="Force.",
+                  default=False,
+                  action="store_true"
+                  )
 
-parser.add_option(  "-l", "--remoteUser",
-                    dest="remoteUser",
-                    help="Remote Server User",
-                    default=False
-                    )
+parser.add_option("-l", "--remoteUser",
+                  dest="remoteUser",
+                  help="Remote Server User",
+                  default=False
+                  )
 
-parser.add_option(  "-P", "--remotePath",
-                    dest="remotePath",
-                    help="Remote directory to be transmitted",
-                    default='/'
-                    )
+parser.add_option("-P", "--remotePath",
+                  dest="remotePath",
+                  help="Remote directory to be transmitted",
+                  default='/'
+                  )
 
-parser.add_option(  "-p", "--pass", "--password",
-                    dest="password",
-                    help="Password to access the remote server",
-                    default=False
-                    )
+parser.add_option("-p", "--pass", "--password",
+                  dest="password",
+                  help="Password to access the remote server",
+                  default=False
+                  )
 
-parser.add_option(  "--exit", "--stop",
-                    dest="exit",
-                    help="Unmount and terminate transmission",
-                    default=False,
-                    action="store_true"
-                    )
+parser.add_option("--exit", "--stop",
+                  dest="exit",
+                  help="Unmount and terminate transmission",
+                  default=False,
+                  action="store_true"
+                  )
 
-parser.add_option(  '-t','--terminal',
-                    dest="terminal",
-                    help="Start ssh connection terminalDismount and terminate transmission",
-                    default=False,
-                    action="store_true"
-                    )
+parser.add_option('-t', '--terminal',
+                  dest="terminal",
+                  help="Start ssh connection terminalDismount and terminate transmission",
+                  default=False,
+                  action="store_true"
+                  )
 
-parser.add_option(  '--save',
-                    dest="save",
-                    help="Save password server",
-                    default=False,
-                    action="store_true"
-                    )
+parser.add_option('--save',
+                  dest="save",
+                  help="Save password server",
+                  default=False,
+                  action="store_true"
+                  )
 
 (options, args) = parser.parse_args()
 
-if options.exit == True or (len(args) >= 1 and args[0] in ('stop','exit')):
+if options.exit == True or (len(args) >= 1 and args[0] in ('stop', 'exit')):
     if len(args) == 2:
         options.clientPath = args[1]
 
-    os.system("sudo fusermount -u %s" % options.clientPath)
+    if options.force == True:
+        os.system("sudo umount -l %s" % options.clientPath)
+    else:
+        os.system("sudo fusermount -u %s" % options.clientPath)
+
     os.system("rm -r %s" % options.clientPath)
     print("Closed transmission '%s'." % options.clientPath)
     exit()
@@ -91,18 +102,20 @@ if options.save == True and query("To save this connection?"):
         os.system("sudo ssh-copy-id %s" % options.remoteIp)
     else:
         # os.system('cat ~/.ssh/id_rsa.pub | ssh %s@%s "mkdir -p ~/.ssh && cat >>  ~/.ssh/authorized_keys"' % (options.remoteUser,options.remoteIp))
-        os.system("sudo ssh-copy-id %s@%s" % (options.remoteUser,options.remoteIp))
+        os.system("sudo ssh-copy-id %s@%s" % (options.remoteUser, options.remoteIp))
 
 if options.password == False:
     if '@' in options.remoteIp:
-        os.system("sshfs %s:%s %s" % (options.remoteIp,options.remotePath,options.clientPath))
+        os.system("sshfs %s:%s %s" % (options.remoteIp, options.remotePath, options.clientPath))
     else:
-        os.system("sshfs %s@%s:%s %s" % (options.remoteUser,options.remoteIp,options.remotePath,options.clientPath))
+        os.system("sshfs %s@%s:%s %s" % (options.remoteUser, options.remoteIp, options.remotePath, options.clientPath))
 else:
     if '@' in options.remoteIp:
-        os.system("echo %s|sshfs %s:%s %s -o password_stdin" % (options.password,options.remoteIp,options.remotePath,options.clientPath))
+        os.system("echo %s|sshfs %s:%s %s -o password_stdin" % (
+        options.password, options.remoteIp, options.remotePath, options.clientPath))
     else:
-        os.system("echo %s|sshfs %s@%s:%s %s -o password_stdin" % (options.password,options.remoteUser,options.remoteIp,options.remotePath,options.clientPath))
+        os.system("echo %s|sshfs %s@%s:%s %s -o password_stdin" % (
+        options.password, options.remoteUser, options.remoteIp, options.remotePath, options.clientPath))
 
 print('Connected in %s.' % options.clientPath)
 os.system("ls -l %s" % options.clientPath)
@@ -110,11 +123,13 @@ os.system("ls -l %s" % options.clientPath)
 if options.terminal == True or query('You want to start an ssh connection on the terminal?') == True:
     if options.password == False:
         if '@' in options.remoteIp:
-            os.system("ssh -t %s \"cd %s ; bash\"" % (options.remoteIp,options.remotePath))
+            os.system("ssh -t %s \"cd %s ; bash\"" % (options.remoteIp, options.remotePath))
         else:
-            os.system("ssh -t %s@%s \"cd %s ; bash\"" % (options.remoteUser,options.remoteIp,options.remotePath))
+            os.system("ssh -t %s@%s \"cd %s ; bash\"" % (options.remoteUser, options.remoteIp, options.remotePath))
     else:
         if '@' in options.remoteIp:
-            os.system("sshpass -p '%s' ssh -o StrictHostKeyChecking=no -t %s \"cd %s ; bash\"" % (options.password,options.remoteIp,options.remotePath))
+            os.system("sshpass -p '%s' ssh -o StrictHostKeyChecking=no -t %s \"cd %s ; bash\"" % (
+            options.password, options.remoteIp, options.remotePath))
         else:
-            os.system("sshpass -p '%s' ssh -o StrictHostKeyChecking=no -t %s@%s \"cd %s ; bash\"" % (options.password,options.remoteUser,options.remoteIp,options.remotePath))
+            os.system("sshpass -p '%s' ssh -o StrictHostKeyChecking=no -t %s@%s \"cd %s ; bash\"" % (
+            options.password, options.remoteUser, options.remoteIp, options.remotePath))
